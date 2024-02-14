@@ -122,50 +122,6 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
             os_up.chave = os_up.os
             os_up.tipo = ''
 
-            # Verifica se o ocorrencia está entre os valores especificados
-            os_up.retorno_tecnico = 'Sim' if info_os.ocorrencia in (
-                'Técnico em rota', 'Coleta realizada c/ sucesso', 'Insucesso na visita') else 'Não'
-
-            # status
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.status = 'SEGUIR ROTA - MENSAGEM ENVIADA'
-            elif info_os.ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
-                os_up.status = 'INSUCESSO - SEGUIR ROTA'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.status = 'PEDIDO REALIZADO'
-            else:
-                os_up.status = '...'
-
-            # conclusao
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.conclusao_operador = 'Enviada mensagem no WhatsApp'
-            elif info_os.ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
-                os_up.conclusao_operador = 'Seguir rota'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.conclusao_operador = 'Informação de coleta recebida. Técnico autorizado a seguir rota.'
-            else:
-                os_up.conclusao_operador = ''
-
-            # Definicao
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.definicao = 'PENDENTE / EM ROTA'
-            elif info_os.ocorrencia == 'Insucesso na visita' and info_os.os.startswith('CLC'):
-                os_up.definicao = 'MIGROU CAÇA-POS'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.definicao = 'PEDIDO REALIZADO'
-            else:
-                os_up.definicao = ''
-
-            # satatus relatorio
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.status_relatorio = 'PENDENTE / EM ROTA'
-            elif info_os.ocorrencia == 'Insucesso na visita' and info_os.os.startswith('CLC'):
-                os_up.status_relatorio = 'SOLICITAÇÃO DE CANCELAMENTO'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.status_relatorio = 'SEM TRATATIVA DA CENTRAL'
-            else:
-                os_up.status_relatorio = ''
-
             # projeto
             if info_os.projeto != 'CIELO' and os_up.os.startswith('CLC'):
                 os_up.projeto = 'CIELO'
@@ -173,6 +129,57 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
                 os_up.projeto = 'CTBPO'
             elif info_os.projeto == 'FISERV':
                 os_up.projeto = 'FIRST'
+
+            # regra para criar ocorrência que será usada somente no código
+            if os_up.projeto == 'CIELO' and info_os.ocorrencia not in (
+                    'Técnico em rota', 'Coleta realizada c/ sucesso', 'Insucesso na visita'):
+                _ocorrencia = 'Insucesso na visita'
+            else:
+                _ocorrencia = info_os.ocorrencia
+
+            # Verifica se o ocorrencia está entre os valores especificados
+            os_up.retorno_tecnico = 'Sim' if _ocorrencia in (
+                'Técnico em rota', 'Coleta realizada c/ sucesso', 'Insucesso na visita') else 'Não'
+
+            # status
+            if _ocorrencia == 'Técnico em rota':
+                os_up.status = 'SEGUIR ROTA - MENSAGEM ENVIADA'
+            elif _ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
+                os_up.status = 'INSUCESSO - SEGUIR ROTA'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.status = 'PEDIDO REALIZADO'
+            else:
+                os_up.status = '...'
+
+            # conclusao
+            if _ocorrencia == 'Técnico em rota':
+                os_up.conclusao_operador = 'Enviada mensagem no WhatsApp'
+            elif _ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
+                os_up.conclusao_operador = 'Seguir rota'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.conclusao_operador = 'Informação de coleta recebida. Técnico autorizado a seguir rota.'
+            else:
+                os_up.conclusao_operador = ''
+
+            # Definicao
+            if _ocorrencia == 'Técnico em rota':
+                os_up.definicao = 'PENDENTE / EM ROTA'
+            elif _ocorrencia == 'Insucesso na visita' and info_os.os.startswith('CLC'):
+                os_up.definicao = 'MIGROU CAÇA-POS'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.definicao = 'PEDIDO REALIZADO'
+            else:
+                os_up.definicao = ''
+
+            # satatus relatorio
+            if _ocorrencia == 'Técnico em rota':
+                os_up.status_relatorio = 'PENDENTE / EM ROTA'
+            elif _ocorrencia == 'Insucesso na visita' and info_os.os.startswith('CLC'):
+                os_up.status_relatorio = 'SOLICITAÇÃO DE CANCELAMENTO'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.status_relatorio = 'SEM TRATATIVA DA CENTRAL'
+            else:
+                os_up.status_relatorio = ''
 
             nova_obs = f'|{data_hora_formatada} - Técnico: {os_up.nome_tecnico} - Ocorrência: {info_os.ocorrencia}  - {info_os.problema_apresentado}'
             os_up.problema_apresentado = antigo_historico + f'\n' + nova_obs
@@ -236,50 +243,6 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
             os_up.chave = os_up.chave or os_up.os
             os_up.tipo = ''
 
-            # Verifica se o ocorrencia está entre os valores especificados
-            os_up.retorno_tecnico = 'Sim' if info_os.ocorrencia in (
-                'Técnico em rota', 'Coleta realizada c/ sucesso', 'Insucesso na visita') else 'Não'
-
-            # status
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.status = 'SEGUIR ROTA - MENSAGEM ENVIADA'
-            elif info_os.ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
-                os_up.status = 'INSUCESSO - SEGUIR ROTA'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.status = 'PEDIDO REALIZADO'
-            else:
-                os_up.status = '...'
-
-            # conclusao
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.conclusao_operador = 'Enviada mensagem no WhatsApp'
-            elif info_os.ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
-                os_up.conclusao_operador = 'Seguir rota'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.conclusao_operador = 'Informação de coleta recebida. Técnico autorizado a seguir rota.'
-            else:
-                os_up.conclusao_operador = ''
-
-            # Definicao
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.definicao = 'PENDENTE / EM ROTA'
-            elif info_os.ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
-                os_up.definicao = 'MIGROU CAÇA-POS'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.definicao = 'PEDIDO REALIZADO'
-            else:
-                os_up.definicao = ''
-
-            # satatus relatorio
-            if info_os.ocorrencia == 'Técnico em rota':
-                os_up.status_relatorio = 'PENDENTE / EM ROTA'
-            elif info_os.ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
-                os_up.status_relatorio = 'SOLICITAÇÃO DE CANCELAMENTO'
-            elif info_os.ocorrencia == 'Coleta realizada c/ sucesso':
-                os_up.status_relatorio = 'SEM TRATATIVA DA CENTRAL'
-            else:
-                os_up.status_relatorio = ''
-
             # projeto
             if info_os.projeto != 'CIELO' and os_up.os.startswith('CLC'):
                 os_up.projeto = 'CIELO'
@@ -287,6 +250,57 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
                 os_up.projeto = 'CTBPO'
             elif info_os.projeto == 'FISERV':
                 os_up.projeto = 'FIRST'
+
+            # regra para criar ocorrência que será usada somente no código
+            if os_up.projeto == 'CIELO' and info_os.ocorrencia not in (
+                    'Técnico em rota', 'Coleta realizada c/ sucesso', 'Insucesso na visita'):
+                _ocorrencia = 'Insucesso na visita'
+            else:
+                _ocorrencia = info_os.ocorrencia
+
+            # Verifica se o ocorrencia está entre os valores especificados
+            os_up.retorno_tecnico = 'Sim' if _ocorrencia in (
+                'Técnico em rota', 'Coleta realizada c/ sucesso', 'Insucesso na visita') else 'Não'
+
+            # status
+            if _ocorrencia == 'Técnico em rota':
+                os_up.status = 'SEGUIR ROTA - MENSAGEM ENVIADA'
+            elif _ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
+                os_up.status = 'INSUCESSO - SEGUIR ROTA'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.status = 'PEDIDO REALIZADO'
+            else:
+                os_up.status = '...'
+
+            # conclusao
+            if _ocorrencia == 'Técnico em rota':
+                os_up.conclusao_operador = 'Enviada mensagem no WhatsApp'
+            elif _ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
+                os_up.conclusao_operador = 'Seguir rota'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.conclusao_operador = 'Informação de coleta recebida. Técnico autorizado a seguir rota.'
+            else:
+                os_up.conclusao_operador = ''
+
+            # Definicao
+            if _ocorrencia == 'Técnico em rota':
+                os_up.definicao = 'PENDENTE / EM ROTA'
+            elif _ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
+                os_up.definicao = 'MIGROU CAÇA-POS'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.definicao = 'PEDIDO REALIZADO'
+            else:
+                os_up.definicao = ''
+
+            # satatus relatorio
+            if _ocorrencia == 'Técnico em rota':
+                os_up.status_relatorio = 'PENDENTE / EM ROTA'
+            elif _ocorrencia == 'Insucesso na visita' and os_up.os.startswith('CLC'):
+                os_up.status_relatorio = 'SOLICITAÇÃO DE CANCELAMENTO'
+            elif _ocorrencia == 'Coleta realizada c/ sucesso':
+                os_up.status_relatorio = 'SEM TRATATIVA DA CENTRAL'
+            else:
+                os_up.status_relatorio = ''
 
             nova_obs = f'|{data_hora_formatada} - Técnico: {os_up.nome_tecnico} - Ocorrência: {info_os.ocorrencia}  - {info_os.problema_apresentado}'
             os_up.problema_apresentado = nova_obs
