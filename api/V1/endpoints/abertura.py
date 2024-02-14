@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 
-from models.abertura_model import ProjetoFdModel, ProjetoCtbseqModel
+from models.abertura_model import ProjetoFdModel, ProjetoCtbseqModel, RetencaoHistAbModel
 from models.abertura_model import OcorrenciasModel, TiposModel, RetencaoAbModel
 from schemas.abertura_shema import ProjetoSchema, OcorrenciaSchema, TiposSchema, RetencaoAbSchema, RetencaoRtSchema
 from core.deps import get_session
@@ -191,13 +191,24 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
                 cliente_result = await session.execute(cliente_query)
                 os_up.cliente = cliente_result.scalar_one_or_none()
 
-            print(os_up.cliente)
             # coloco a versão da API
             os_up.versao = api_versao
 
             # Salvar as alterações no banco de dados, se necessário
             session.add(os_up)
             await session.commit()
+
+            # Regras para inserir também na tabela de hintórico
+            os_hist = RetencaoHistAbModel(
+                os=os_up.os,
+                problema_apresentado=nova_obs,
+                tecnico=os_up.nome_tecnico
+            )
+            session.add(os_hist)
+
+            # Commit explicitamente a transação
+            await session.commit()
+
             # Retornar o objeto atualizado
             return os_up
         else:
@@ -297,6 +308,17 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
             os_up.versao = api_versao
 
             session.add(os_up)
+
+            # Commit explicitamente a transação
+            await session.commit()
+
+            # Regras para inserir também na tabela de hintórico
+            os_hist = RetencaoHistAbModel(
+                os=os_up.os,
+                problema_apresentado=nova_obs,
+                tecnico=os_up.nome_tecnico
+            )
+            session.add(os_hist)
 
             # Commit explicitamente a transação
             await session.commit()
