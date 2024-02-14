@@ -46,12 +46,12 @@ async def get_projetos(db: AsyncSession = Depends(get_session)):
 @router.get('/ocorrencias/{projeto}', response_model=List[OcorrenciaSchema], status_code=status.HTTP_200_OK)
 async def get_ocorrencias(projeto: str, db: AsyncSession = Depends(get_session)):
     async with db as session:
-
-        if projeto.upper() == 'FISERV':
+        projeto = projeto.upper()
+        if projeto == 'FISERV':
             projeto = "FIRST"
 
         query = select(OcorrenciasModel).filter(
-            OcorrenciasModel.Projeto == projeto).filter(OcorrenciasModel.Motivo != '...')
+            OcorrenciasModel.projeto == projeto).filter(OcorrenciasModel.motivo != '...')
 
         result = await session.execute(query)
         ocorrencias: List[OcorrenciaSchema] = result.scalars().all()
@@ -101,6 +101,7 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
         # Formate a data e hora atual como DD/MM/AAAA HH:MM:SS
         data_hora_formatada = data_hora_atual.strftime("%d/%m/%Y %H:%M:%S")
         if os_up:
+            info_os.projeto = info_os.projeto.upper()
             antigo_historico = os_up.problema_apresentado
             os_up.dt_abertura = datetime.now()
             os_up.telefone_tecnico = info_os.telefone_tecnico
@@ -200,6 +201,7 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
             # Retornar o objeto atualizado
             return os_up
         else:
+            info_os.projeto = info_os.projeto.upper()
             os_up = RetencaoAbModel(
                 os=info_os.os,
                 dt_abertura=datetime.now())

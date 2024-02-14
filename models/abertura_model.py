@@ -19,10 +19,9 @@ class ProjetoCtbseqModel(ProjetoBase):
 
 class OcorrenciasModel(settings.DBBaseModel):
     __tablename__ = 'Motivos_fedex'
-
-    Motivo: str = Column(String(250))
+    motivo: str = Column(String(250))
     id = Column(Integer, primary_key=True, autoincrement=True)
-    Projeto: str = Column(String(250))
+    projeto: str = Column(String(250))
 
 
 class TiposModel(settings.DBBaseModel):

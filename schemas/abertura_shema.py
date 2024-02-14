@@ -12,7 +12,7 @@ class ProjetoSchema(SCBaseModel):
 
 
 class OcorrenciaSchema(SCBaseModel):
-    ocorrencia: str
+    motivo: str
 
     class Config:
         from_attributes = True
