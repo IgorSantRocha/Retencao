@@ -21,7 +21,10 @@ api_versao = 'api/V1'
 # GET Projetos
 
 
-@router.get('/projetos', response_model=List[ProjetoSchema], status_code=status.HTTP_200_OK)
+@router.get('/projetos', response_model=List[ProjetoSchema], status_code=status.HTTP_200_OK,
+            summary='Lista todos os projetos ativos',
+            description='Lista todos os projetos presentes na tabela do CTBFED e do CTBSEQ',
+            response_description='Lista obtida com sucesso!')
 async def get_projetos(db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(ProjetoFdModel).filter(ProjetoFdModel.PROJETO != '...')
@@ -43,7 +46,10 @@ async def get_projetos(db: AsyncSession = Depends(get_session)):
 
 
 # GET Ocorrências
-@router.get('/ocorrencias/{projeto}', response_model=List[OcorrenciaSchema], status_code=status.HTTP_200_OK)
+@router.get('/ocorrencias/{projeto}', response_model=List[OcorrenciaSchema], status_code=status.HTTP_200_OK,
+            summary='Lista as ocorrências',
+            description='Lista as ocorrências de acordo com o projeto expecificado',
+            response_description='Lista obtida com sucesso!')
 async def get_ocorrencias(projeto: str, db: AsyncSession = Depends(get_session)):
     async with db as session:
         projeto = projeto.upper()
@@ -64,7 +70,10 @@ async def get_ocorrencias(projeto: str, db: AsyncSession = Depends(get_session))
 
 
 # GET Tipos
-@router.get('/tipos/{projeto}', response_model=List[TiposSchema], status_code=status.HTTP_200_OK)
+@router.get('/tipos/{projeto}', response_model=List[TiposSchema], status_code=status.HTTP_200_OK,
+            summary='Lista os tipos de pedido',
+            description='Lista os tipos de pedido de acordo com os existentes para o projeto expecificado.',
+            response_description='Lista obtida com sucesso!')
 async def get_tipos(projeto: str, db: AsyncSession = Depends(get_session)):
     async with db as session:
 
@@ -88,7 +97,10 @@ async def get_tipos(projeto: str, db: AsyncSession = Depends(get_session)):
 
 
 # PUT Abertura
-@router.put('/', response_model=RetencaoRtSchema, status_code=status.HTTP_202_ACCEPTED)
+@router.put('/', response_model=RetencaoRtSchema, status_code=status.HTTP_202_ACCEPTED,
+            summary='Realiza a abertura da OS',
+            description='Realiza a abertura/reabertura da OS verificando se a OS existeou não e então decidindo entre update/insert',
+            response_description='Abertura realizada!')
 async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(RetencaoAbModel).filter(
