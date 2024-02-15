@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     '''
     Congigurações gerais da API
     '''
-    API_V1_STR: str = '/api/v1'
+    API_V1_STR: str = '/Retencao/api/v1'
     DB_URL: str = "mssql+aioodbc://USUARIO:SENHA@IP_OU_NOME_SERVIDOR:PORTA/NOME_DB?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
     DBBaseModel: DeclarativeMeta = declarative_base()
 
