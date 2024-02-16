@@ -143,11 +143,13 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
                 os_up.projeto = 'FIRST'
 
             # regra para criar ocorrência que será usada somente no código
-            if os_up.projeto == 'CIELO' and info_os.ocorrencia not in (
+            # 16/02/24 - Comentando essa regra para deixar os CIELO(CLC) irem na fila
+            '''if os_up.projeto == 'CIELO' and info_os.ocorrencia not in (
                     'Técnico em rota', 'Coleta realizada c/ sucesso', 'Insucesso na visita'):
                 _ocorrencia = 'Insucesso na visita'
             else:
-                _ocorrencia = info_os.ocorrencia
+                _ocorrencia = info_os.ocorrencia'''
+            _ocorrencia = info_os.ocorrencia  # Definindo valor padrão para a variável existir
 
             # Verifica se o ocorrencia está entre os valores especificados
             os_up.retorno_tecnico = 'Sim' if _ocorrencia in (
