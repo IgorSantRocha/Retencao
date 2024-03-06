@@ -61,6 +61,7 @@ class RetencaoAbModel(settings.DBBaseModel):
     etapa: str = Column(String(250), nullable=True)
     tipo: str = Column(String(250), nullable=True)
     acao_d1: str = Column(String(250), nullable=True)
+    call_id: str = Column(String(250), nullable=True)
 
 
 class RetencaoHistAbModel(settings.DBBaseModel):
@@ -73,3 +74,5 @@ class RetencaoHistAbModel(settings.DBBaseModel):
     nr_atendimento: str = Column(String(250), nullable=True)
     problema_apresentado: str = Column(Text, nullable=True)
     tecnico: str = Column(String(250), nullable=True)
+    callid: str = Column(String(250), nullable=True)
+    ip: str = Column(String(250), nullable=True)

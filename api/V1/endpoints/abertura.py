@@ -1,7 +1,6 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 from fastapi import Depends, status
-from functions.monta_colunas import cria_colunas
 from datetime import datetime
 # from sqlalchemy import delete
 
@@ -13,6 +12,7 @@ from models.abertura_model import ProjetoFdModel, ProjetoCtbseqModel, RetencaoHi
 from models.abertura_model import OcorrenciasModel, TiposModel, RetencaoAbModel
 from schemas.abertura_shema import ProjetoSchema, OcorrenciaSchema, TiposSchema, RetencaoAbSchema, RetencaoRtSchema
 from core.deps import get_session
+from crud.crud_abertura import gerar_id_unico
 
 router = APIRouter()
 
@@ -101,7 +101,7 @@ async def get_tipos(projeto: str, db: AsyncSession = Depends(get_session)):
             summary='Realiza a abertura da OS',
             description='Realiza a abertura/reabertura da OS verificando se a OS existeou não e então decidindo entre update/insert',
             response_description='Abertura realizada!')
-async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get_session)):
+async def put_abertura_chatbot(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(RetencaoAbModel).filter(
             RetencaoAbModel.os == info_os.os)
@@ -212,6 +212,8 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
                 cliente_result = await session.execute(cliente_query)
                 os_up.cliente = cliente_result.scalar_one_or_none()
 
+            os_up.call_id = gerar_id_unico()
+
             # coloco a versão da API
             os_up.versao = api_versao
 
@@ -219,19 +221,6 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
             session.add(os_up)
             await session.commit()
 
-            # Regras para inserir também na tabela de hintórico
-            os_hist = RetencaoHistAbModel(
-                os=os_up.os,
-                problema_apresentado=nova_obs,
-                tecnico=os_up.nome_tecnico
-            )
-            session.add(os_hist)
-
-            # Commit explicitamente a transação
-            await session.commit()
-
-            # Retornar o objeto atualizado
-            return os_up
         else:
             info_os.projeto = info_os.projeto.upper()
             os_up = RetencaoAbModel(
@@ -332,6 +321,8 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
                 cliente_result = await session.execute(cliente_query)
                 os_up.cliente = cliente_result.scalar_one_or_none()
 
+            os_up.call_id = gerar_id_unico()
+
             # coloco a versão da API
             os_up.versao = api_versao
 
@@ -340,15 +331,17 @@ async def put_abertura(info_os: RetencaoAbSchema, db: AsyncSession = Depends(get
             # Commit explicitamente a transação
             await session.commit()
 
-            # Regras para inserir também na tabela de hintórico
-            os_hist = RetencaoHistAbModel(
-                os=os_up.os,
-                problema_apresentado=nova_obs,
-                tecnico=os_up.nome_tecnico
-            )
-            session.add(os_hist)
+        # Regras para inserir também na tabela de hintórico
+        os_hist = RetencaoHistAbModel(
+            os=os_up.os,
+            problema_apresentado=nova_obs,
+            tecnico=os_up.nome_tecnico,
+            callid=os_up.call_id
+        )
+        session.add(os_hist)
 
-            # Commit explicitamente a transação
-            await session.commit()
+        # Commit explicitamente a transação
+        await session.commit()
 
-            return os_up
+        # Retornar o objeto atualizado
+        return os_up
