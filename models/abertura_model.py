@@ -75,4 +75,3 @@ class RetencaoHistAbModel(settings.DBBaseModel):
     problema_apresentado: str = Column(Text, nullable=True)
     tecnico: str = Column(String(250), nullable=True)
     callid: str = Column(String(250), nullable=True)
-    ip: str = Column(String(250), nullable=True)
