@@ -11,6 +11,6 @@ def gerar_id_unico():
     uuid_aleatorio = str(uuid.uuid4()).replace('-', '')
 
     # Combinar a data/hora atual e o UUID
-    id_unico = uuid_aleatorio + "$" + data_hora_atual
+    id_unico = data_hora_atual + "$" + uuid_aleatorio
 
     return id_unico

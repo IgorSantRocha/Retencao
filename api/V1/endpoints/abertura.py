@@ -12,7 +12,7 @@ from models.abertura_model import ProjetoFdModel, ProjetoCtbseqModel, RetencaoHi
 from models.abertura_model import OcorrenciasModel, TiposModel, RetencaoAbModel
 from schemas.abertura_shema import ProjetoSchema, OcorrenciaSchema, TiposSchema, RetencaoAbSchema, RetencaoRtSchema
 from core.deps import get_session
-from crud.crud_abertura import gerar_id_unico
+from core.abertura_core import gerar_id_unico
 
 router = APIRouter()
 
