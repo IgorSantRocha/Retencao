@@ -31,7 +31,6 @@ async def manda_resposta(info_messagem: MessageSchema, db: AsyncSession):
 
     # Monto o corpo da requisição
     client = RequestEvolutionAPI(
-        url='http://192.168.0.213:3000/message/sendText/',
         instance='chatbot-receptivo',
         telefone=info_messagem.telefone,
         msg=monta_txt_resposta(

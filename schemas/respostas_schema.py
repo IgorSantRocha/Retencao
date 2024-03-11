@@ -12,3 +12,29 @@ class MessageSchema(SCBaseModel):
 
     class Config:
         from_attributes = True
+
+
+'''
+Criando modelo de resposta do Evolution API
+'''
+
+
+class Key(SCBaseModel):
+    remoteJid: str
+    fromMe: bool
+    id: str
+
+
+class ExtendedTextMessage(SCBaseModel):
+    text: str
+
+
+class Message(SCBaseModel):
+    extendedTextMessage: ExtendedTextMessage
+
+
+class ResponseEvolution(SCBaseModel):
+    key: Key
+    message: Message
+    messageTimestamp: str
+    status: str

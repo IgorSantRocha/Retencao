@@ -41,9 +41,9 @@ class RequestClient:
 
 
 class RequestEvolutionAPI:
-    def __init__(self, url: str, instance: str, telefone: str, msg: str, timeout: int = 100) -> None:
+    def __init__(self,  instance: str, telefone: str, msg: str, timeout: int = 100) -> None:
         self.method = 'POST'
-        self.url = url + instance
+        self.url = 'http://192.168.0.213:3000/message/sendText/' + instance
         self.request_data = {
             "number": telefone,
             "options": {
