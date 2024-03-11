@@ -5,9 +5,11 @@ from schemas.respostas_schema import MessageSchema
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 import crud
+from pydoc import Doc
 
 
 def monta_txt_resposta(os: str, atendente: str, conclusao: str, obs: str, protocolo_aut: bool, protocolo: str):
+    Doc('''Esta função faz apenas um concatenar das variáveis, montando o texto que será enviado no WPP''')
     enter = "\n"
     txt_retorno = f"*Retorno da OS:* {os}{enter}{enter}*Atendente:* {atendente}{enter}*Observações:*{enter}{conclusao}{enter}{obs}"
     if protocolo_aut:
@@ -15,7 +17,10 @@ def monta_txt_resposta(os: str, atendente: str, conclusao: str, obs: str, protoc
     return txt_retorno
 
 
-async def monta_resposta(info_messagem: MessageSchema, db: AsyncSession):
+async def manda_resposta(info_messagem: MessageSchema, db: AsyncSession):
+    Doc(
+        '''Chama as funções necessárias para obter as informações e envia a requisição para o EvolutionAPI'''
+    )
     info_callid = await crud.valida_callid(db=db, callid=info_messagem.callid)
     if not info_callid:
         '''Vou criar essa regra depois'''
