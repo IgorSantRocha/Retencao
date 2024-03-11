@@ -18,7 +18,7 @@ api_versao = 'api/V1'
              description='Realiza o envio da resposta via WPP com base no callid da OS',
              response_description='Mensagem enviada')
 async def post_chatbot(info_messagem: MessageSchema, db: AsyncSession = Depends(get_session)):
-    Doc('''Chama a função que trata as informações enviadas''')
+    '''Chama a função que trata as informações enviadas'''
     txt_resposta = await manda_resposta(info_messagem=info_messagem, db=db)
     ''''''
     return txt_resposta

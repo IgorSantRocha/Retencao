@@ -1,5 +1,5 @@
 import httpx
-from core.request import RequestClient
+from core.request import RequestClient, RequestEvolutionAPI
 from crud.crud_respostas import limpa_callid
 from schemas.respostas_schema import MessageSchema
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +9,7 @@ from pydoc import Doc
 
 
 def monta_txt_resposta(os: str, atendente: str, conclusao: str, obs: str, protocolo_aut: bool, protocolo: str):
-    Doc('''Esta função faz apenas um concatenar das variáveis, montando o texto que será enviado no WPP''')
+    '''Esta função faz apenas um concatenar das variáveis, montando o texto que será enviado no WPP'''
     enter = "\n"
     txt_retorno = f"*Retorno da OS:* {os}{enter}{enter}*Atendente:* {atendente}{enter}*Observações:*{enter}{conclusao}{enter}{obs}"
     if protocolo_aut:
@@ -18,9 +18,7 @@ def monta_txt_resposta(os: str, atendente: str, conclusao: str, obs: str, protoc
 
 
 async def manda_resposta(info_messagem: MessageSchema, db: AsyncSession):
-    Doc(
-        '''Chama as funções necessárias para obter as informações e envia a requisição para o EvolutionAPI'''
-    )
+    '''Chama as funções necessárias para obter as informações e envia a requisição para o EvolutionAPI'''
     info_callid = await crud.valida_callid(db=db, callid=info_messagem.callid)
     if not info_callid:
         '''Vou criar essa regra depois'''
@@ -32,28 +30,17 @@ async def manda_resposta(info_messagem: MessageSchema, db: AsyncSession):
     protocolo_aut = info_conclusao.protocolo
 
     # Monto o corpo da requisição
-    client = RequestClient(
-        method='POST',
-        url='http://192.168.0.213:3000/message/sendText/chatbot-receptivo',
-        headers={
-            'apikey': 'rJ9aWxBaX82Pn7vC15tlL5ZBoCwCTLtnvj73OxsycfcI1o84vv9Y2Hh2I2jFNKx9iQVUqteUOk4pWI7g'},
-        request_data={
-            "number": info_messagem.telefone,
-            "options": {
-                "delay": 1200,
-                "presence": "composing",
-                "linkPreview": "false"
-            },
-            "textMessage": {
-                "text": monta_txt_resposta(
-                    info_messagem.os,
-                    info_messagem.atendente,
-                    info_conclusao.conclusao_operador,
-                    info_messagem.obs,
-                    protocolo_aut,
-                    info_messagem.protocolo)
-            }
-        }
+    client = RequestEvolutionAPI(
+        url='http://192.168.0.213:3000/message/sendText/',
+        instance='chatbot-receptivo',
+        telefone=info_messagem.telefone,
+        msg=monta_txt_resposta(
+            info_messagem.os,
+            info_messagem.atendente,
+            info_conclusao.conclusao_operador,
+            info_messagem.obs,
+            protocolo_aut,
+            info_messagem.protocolo)
     )
 
     # manda a request ou erro 400

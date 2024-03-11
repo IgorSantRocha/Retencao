@@ -7,13 +7,11 @@ from models.respostas_model import RespTbProjetoModel
 
 
 async def valida_callid(callid: Any, db: AsyncSession) -> Optional[RetencaoHistRespModel]:
-    Doc(
-        '''
-        - Consulta se o callid ainda não teve resposta enviada
-        - Caso já tenha sido enviado, retorna a lista vazia
-        - Se não, retorna o objeto do tipo RetencaoHistRespModel para ser usado nos updates
-        '''
-    )
+    '''
+    - Consulta se o callid ainda não teve resposta enviada
+    - Caso já tenha sido enviado, retorna a lista vazia
+    - Se não, retorna o objeto do tipo RetencaoHistRespModel para ser usado nos updates
+    '''
     async with db as session:
         query = select(RetencaoHistRespModel).filter(
             RetencaoHistRespModel.callid == callid, RetencaoHistRespModel.ip.is_(None))
@@ -24,9 +22,7 @@ async def valida_callid(callid: Any, db: AsyncSession) -> Optional[RetencaoHistR
 
 
 async def busca_conclusao(codigo: str, db: AsyncSession) -> Optional[RespTbOperacionalModel]:
-    Doc(
-        '''Usa o código de conclusão enviado para obter a conclusão e a informação de Protocolo 0 ou 1'''
-    )
+    '''Usa o código de conclusão enviado para obter a conclusão e a informação de Protocolo 0 ou 1'''
     async with db as session:
         query = select(RespTbOperacionalModel).filter(
             RespTbOperacionalModel.codigo == codigo).limit(1)
@@ -37,12 +33,10 @@ async def busca_conclusao(codigo: str, db: AsyncSession) -> Optional[RespTbOpera
 
 
 async def limpa_callid(callid: Any, db: AsyncSession) -> Optional[RespTbProjetoModel]:
-    Doc(
-        '''
-        - Dá update na TB_PROJETO_FEDEX removendo o call_id
-        - Marca na TB_PROJETO_FEDEX_HISTÓRICO como enviada resposta
-        '''
-    )
+    '''
+    - Dá update na TB_PROJETO_FEDEX removendo o call_id
+    - Marca na TB_PROJETO_FEDEX_HISTÓRICO como enviada resposta
+    '''
     async with db as session:
         # Limpo a TB_Projeto_Fedex
         query = select(RespTbProjetoModel).filter(
