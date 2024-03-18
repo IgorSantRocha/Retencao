@@ -11,7 +11,7 @@ from pydoc import Doc
 def monta_txt_resposta(os: str, atendente: str, conclusao: str, obs: str, protocolo_aut: bool, protocolo: str):
     '''Esta função faz apenas um concatenar das variáveis, montando o texto que será enviado no WPP'''
     enter = "\n"
-    txt_retorno = f"*Retorno da OS:* {os}{enter}{enter}*Atendente:* {atendente}{enter}*Observações:*{enter}{conclusao}{enter}{obs}"
+    txt_retorno = f"*Retorno da OS:* {os}{enter}{enter}*Atendente:*{atendente}{enter}*Observações:*{enter}{conclusao}{enter}{obs}"
     if protocolo_aut:
         txt_retorno = f'{txt_retorno}{enter}{enter}*Anote o protocolo:* {protocolo}'
     return txt_retorno
